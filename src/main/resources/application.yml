@@ -1,0 +1,40 @@
+
+#app:
+  #url: http://localhost:7777
+#cognito:
+ # rooturl: https://focuswts.auth.ca-central-1.amazoncognito.com
+server:
+  port: 8080
+spring:
+
+  datasource:
+    password: 1337
+    url: jdbc:mysql://localhost:9090/angularSpringAWS?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false
+    username: dev
+  jpa:
+    hibernate:
+      ddl-auto: update
+  security:
+    oauth2:
+      #resource:
+   #   filter-order: 3
+      client:
+        provider:
+          cognito:
+            authorizationUri: https://focuswts.auth.ca-central-1.amazoncognito.com/login?response_type=code&client_id=14g26lgnkgfa5hluqqp3o7rk52&redirect_uri=http://localhost:7777
+            jwkSetUri: https://cognito-idp.ca-central-1.amazonaws.com/ca-central-1_bJmEY08Va/.well-known/jwks.json
+            tokenUri: ${cognito.rooturl}/oauth2/token
+            user-info-uri: ${cognito.rooturl}/oauth2/userInfo
+            userNameAttribute: username
+        registration:
+          cognito:
+            authorization-grant-type: authorization_code
+            client-id: 14g26lgnkgfa5hluqqp3o7rk52
+            client-name: angularapiclient
+            client-secret: 1io460ljq1udp0qj8husrn2vdgtsusi1jhbqad3smvtsbdlqfn2a
+            provider: cognito
+            redirect-uri: https://focuswts.auth.ca-central-1.amazoncognito.com/oauth2/authorize?response_type=code&client_id=14g26lgnkgfa5hluqqp3o7rk52&redirect_uri=http://localhost:7777
+            #scope: email,openid,phone,aws.cognito.signin.user.admin,profile,password
+            scope: openid
+
+
