@@ -11,7 +11,6 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -28,9 +27,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-@ConfigurationProperties("cognito")
-public class JwtAuthFilter extends OncePerRequestFilter {
-
+public class JwtAuthFilter extends OncePerRequestFilter  {
 
     private static final String AUTH_HEADER_STRING = "Authorization";
     private static final String AUTH_BEARER_STRING = "Bearer";
@@ -38,6 +35,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     RemoteJWKSet remoteJWKSet;
     private String ISSUER = "https://cognito-idp.us-west-2.amazonaws.com/us-west-2_gzPV3UIk5";
     private String KEY_STORE_PATH = "/.well-known/jwks.json";
+
 
     public JwtAuthFilter() throws MalformedURLException {
         URL JWKUrl = new URL(ISSUER + KEY_STORE_PATH);
@@ -49,12 +47,22 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             HttpServletRequest req,
             HttpServletResponse res,
             FilterChain chain) throws IOException, ServletException {
+        String header = req.getHeader(AUTH_HEADER_STRING).replace(AUTH_BEARER_STRING, "");
 
-        String header = req.getHeader(AUTH_HEADER_STRING).replace(AUTH_BEARER_STRING,"");
+        System.out.println("Path " + req.getServletPath());
+        if ("/v2/api-docs".equals(req.getServletPath())) {
+         //   shouldNotFilter(req);
+        }else{
+
+        }
+
+
 
         logger.info(header);
 
         try {
+
+
             JWT jwt = JWTParser.parse(header);
 
             String iss = jwt.getJWTClaimsSet().getIssuer();
@@ -72,7 +80,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     // check token
                     JWTClaimsSet claimsSet = jwtProcessor.process(jwt, null);
 
-                    // process roles (gropus in cognito)
+                    // process roles (groups in cognito)
                     List<String> groups = (List<String>) claimsSet.getClaim("cognito:groups");
 
                     List<GrantedAuthority> authorities = new ArrayList<>();
@@ -83,7 +91,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                         switch (s) {
                             case "users": {
                                 authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-                            } break;
+                            }
+                            break;
                         }
                     });
 

@@ -21,13 +21,13 @@ public class PersonController {
     private PersonRepository personRepository;
 
 
-    @GetMapping("/persons")
+    @RequestMapping(value = "/persons",method = RequestMethod.GET)
     @PreAuthorize("hasRole('ROLE_USER')")
     public List<Person> getAllPerson() {
         return personRepository.findAll();
     }
 
-    @GetMapping("/persons/{id}")
+    @RequestMapping(value = "/persons/{id}",method = RequestMethod.GET)
     public ResponseEntity<Person> getPersonById(@PathVariable(value = "id") Long personId) throws ResourceNotFoundException {
         Person person = personRepository.findById(personId).orElseThrow(
                 () -> new ResourceNotFoundException("Person not found for this id :: " + personId));
@@ -35,12 +35,14 @@ public class PersonController {
         return ResponseEntity.ok().body(person);
     }
 
-    @PostMapping("/persons")
+    @PostMapping("/persons/create")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public Person createPerson(@Valid @RequestBody Person person) {
         return personRepository.save(person);
     }
 
-    @PutMapping("/persons/{id}")
+    @PutMapping("/persons/update/{id}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Person> updatePerson(@PathVariable(value = "id") Long personId, @Valid @RequestBody Person personDetails) throws ResourceNotFoundException {
         Person person = personRepository.findById(personId).orElseThrow(
                 () -> new ResourceNotFoundException("Person not found for this id :: " + personId));
@@ -55,12 +57,14 @@ public class PersonController {
 
     }
 
-    @DeleteMapping("/persons/{id}")
+    @DeleteMapping("/persons/delete/{id}")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public Map<String, Boolean> deletePerson(@PathVariable(value = "id") Long personId)
             throws ResourceNotFoundException {
         Person person = personRepository.findById(personId)
                 .orElseThrow(() -> new ResourceNotFoundException("Person not found for this id :: " + personId));
 
+        System.out.println("ID: " + person.getId());
         personRepository.delete(person);
         Map<String, Boolean> response = new HashMap<>();
         response.put("deleted", Boolean.TRUE);
