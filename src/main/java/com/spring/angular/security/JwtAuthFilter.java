@@ -56,8 +56,6 @@ public class JwtAuthFilter extends OncePerRequestFilter  {
 
         }
 
-
-
         logger.info(header);
 
         try {
@@ -77,10 +75,10 @@ public class JwtAuthFilter extends OncePerRequestFilter  {
                     ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
                     jwtProcessor.setJWSKeySelector(keySelector);
 
-                    // check token
+                    // Check token
                     JWTClaimsSet claimsSet = jwtProcessor.process(jwt, null);
 
-                    // process roles (groups in cognito)
+                    // Process roles (groups in cognito)
                     List<String> groups = (List<String>) claimsSet.getClaim("cognito:groups");
 
                     List<GrantedAuthority> authorities = new ArrayList<>();
